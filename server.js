@@ -48,10 +48,14 @@ app.use(passport.initialize());
 
 /* ****************************** Server Routes ****************************** */
 // Use React build
-app.use('/', express.static('build'));
+// app.use('/', express.static('build'));
 
 // Images access route
 app.use('/img', express.static('img'));
+
+app.get('/', (req, res) => {
+  res.send('Access API through /api route');
+});
 
 // API Entry point
 app.get('/api', async (req, res) => {
@@ -110,7 +114,8 @@ app.post('/api/user/login', async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin
     };
-    let token = jwt.sign(tokenPayload, jwtOptions.secretOrKey);
+    let expiresIn = (req.body.keeplogged)?{}:{expiresIn: '24h'};
+    let token = jwt.sign(tokenPayload, jwtOptions.secretOrKey, expiresIn);
     res.json({message: "login successful", token: token})
   } catch (err) {
     res.status(422).json({message: err});
