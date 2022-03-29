@@ -70,12 +70,12 @@ app.get('/api', async (req, res) => {
 /* DELETE WHEN GOING TO IMPLEMENTATION --------------------------------------------------------------------------------------------------*/
 app.get('/api/add-prod', async (req, res) => {
   let data = {
-    name: 'Kamigawa: Neon Dynasty - Bundle',
-    description: 'Each Kamigawa: Neon Dynasty Bundle contains 8 Kamigawa: Neon Dynasty Set Boosters, 20 foil lands, 20 nonfoil lands, 1 foil promo card, and 1 20-sided die.',
-    cardSet: 'Kamigawa: Neon Dynasty',
-    price: '39.99',
-    stock: '10',
-    image: 'kamigawa-neon-dynasty-bundle-52665.jpg'
+    name: "Kamigawa: Neon Dynasty - Draft Booster Box",
+    description: "Each Kamigawa: Neon Dynasty Draft Booster Box contains 36 Kamigawa: Neon Dynasty Draft Booster Packs.",
+    cardSet: "Kamigawa: Neon Dynasty",
+    price: "99.99",
+    stock: "20",
+    image: "kamigawa-neon-dynasty-draft-booster-box-80881.jpg"
   };
   try {
     await dataService.addProduct(data);

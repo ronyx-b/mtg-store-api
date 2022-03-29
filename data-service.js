@@ -8,13 +8,6 @@ dotenv.config();
 // mongoose.connect(process.env.MONGODB_CONN_STR);
 
 // Define schemas
-let addressSchema = new Schema({
-  "street": String,
-  "city": String,
-  "province": String,
-  "postal": String
-});
-let Address;
 
 let userSchema = new Schema({
   "email": {
@@ -29,6 +22,7 @@ let userSchema = new Schema({
     "province": String,
     "postal": String
   }],
+  "defaultAddress": Number,
   "password": String,
   "isAdmin": {
     "type": Boolean,
@@ -79,7 +73,6 @@ module.exports.connect = async () => {
     throw err;
   });
   db.once('open', () => {
-    Address = db.model("address", addressSchema)
     User = db.model("users", userSchema);
     Product = db.model("products", productSchema);
     Order = db.model("orders", orderSchema);
@@ -117,11 +110,12 @@ module.exports.registerUser = async (userData) => {
         first_name: userData.firstName,
         last_name: userData.lastName,
         address: [{
-          street: userData.address,
+          street: userData.street,
           city: userData.city,
-          province: '',
+          province: userData.province,
           postal: userData.postal
         }],
+        defaultAddress: 0,
         password: hashedPassword,
         isAdmin: false
       };
