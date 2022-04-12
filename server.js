@@ -27,12 +27,13 @@ jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme("jwt");
 jwtOptions.secretOrKey = process.env.JWT_SECRET;
 
 let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
-  console.log('payload received', jwt_payload);
+  // console.log('payload received', jwt_payload);
 
   if (jwt_payload) {
     next(null, {
       _id: jwt_payload._id,
-      email: jwt_payload.email
+      email: jwt_payload.email,
+      isAdmin: jwt_payload.isAdmin
     });
   } else {
     next(null, false);
@@ -45,6 +46,13 @@ passport.use(strategy);
 // add passport as application-level middleware
 app.use(passport.initialize());
 
+// Admin authorization middleware
+const isAdmin = (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({message: 'Access denied'});
+  }
+  next();
+};
 
 /* ****************************** Server Routes ****************************** */
 // Use React build
@@ -61,9 +69,9 @@ app.get('/', (req, res) => {
 app.get('/api', async (req, res) => {
   try {
     let msg = await dataService.listening();
-  res.json({message: `API Listening, Data service: ${msg}`});
+    res.json({message: `API Listening, Data service: ${msg}`});
   } catch (err) {
-  res.json({message: `there was an error: ${err}`});
+    res.json({message: `there was an error: ${err}`});
   }
 });
 
@@ -85,6 +93,7 @@ app.get('/api/add-prod', async (req, res) => {
   }
 });
 
+// Get all products
 app.get('/api/products/', async (req, res) => {
   try {
     let products = await dataService.getAllProducts();
@@ -92,6 +101,13 @@ app.get('/api/products/', async (req, res) => {
   } catch (err) {
     res.json({message: `there was an error: ${err}`});
   }
+});
+
+// Add new Product
+app.post('/api/products', passport.authenticate('jwt', { session: false }), isAdmin, (req, res) => {
+  let formData = req.body;
+  console.log(formData);
+  res.json({message: "form processed"});
 });
 
 // Register new user
@@ -122,11 +138,17 @@ app.post('/api/user/login', async (req, res) => {
   }
 });
 
+// Check if user is admin
+app.post('/api/user/isAdmin', passport.authenticate('jwt', { session: false }), isAdmin, (req, res) => {
+  res.json({isAdmin: true});
+});
+
+// User Account
 app.get('/api/user/account', passport.authenticate('jwt', { session: false }), (req, res) => {
   res.json({message: 'user authenticated'});
 });
 
-
+// Start server
 dataService.connect().then(() => {
   app.listen(HTTP_PORT, () => { console.log(`app listening on: ${HTTP_PORT}`); });
 }).catch((err) => {
