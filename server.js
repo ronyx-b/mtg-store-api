@@ -4,8 +4,10 @@ const cors = require('cors'); // load cors package
 const dotenv = require('dotenv'); // ENV variables
 dotenv.config();
 const jwt = require('jsonwebtoken'); // JWT and Passport
-const passport = require("passport");
-const passportJWT = require("passport-jwt");
+const passport = require('passport');
+const passportJWT = require('passport-jwt');
+const multer = require('multer'); // Multer (Multipart Form Processing)
+const fs = require('fs'); // File System -> For image deletion
 
 const dataService = require('./data-service.js')
 
@@ -22,7 +24,7 @@ let JwtStrategy = passportJWT.Strategy;
 
 // Configure its options
 let jwtOptions = {};
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme("jwt");
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt');
 
 jwtOptions.secretOrKey = process.env.JWT_SECRET;
 
@@ -54,6 +56,13 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+// Multer Storage Configuration
+const storage = multer.diskStorage({
+  destination: "./img/",
+  filename: function (req, file, cb) { cb(null, file.originalname); }
+});
+const upload = multer({ storage: storage });
+
 /* ****************************** Server Routes ****************************** */
 // Use React build
 // app.use('/', express.static('build'));
@@ -75,24 +84,6 @@ app.get('/api', async (req, res) => {
   }
 });
 
-/* DELETE WHEN GOING TO IMPLEMENTATION --------------------------------------------------------------------------------------------------*/
-app.get('/api/add-prod', async (req, res) => {
-  let data = {
-    name: "Kamigawa: Neon Dynasty - Draft Booster Box",
-    description: "Each Kamigawa: Neon Dynasty Draft Booster Box contains 36 Kamigawa: Neon Dynasty Draft Booster Packs.",
-    cardSet: "Kamigawa: Neon Dynasty",
-    price: "99.99",
-    stock: "20",
-    image: "kamigawa-neon-dynasty-draft-booster-box-80881.jpg"
-  };
-  try {
-    await dataService.addProduct(data);
-    res.json({message: 'product added'});
-  } catch (err) {
-    res.json({message: err});
-  }
-});
-
 // Get all products
 app.get('/api/products/', async (req, res) => {
   try {
@@ -104,10 +95,15 @@ app.get('/api/products/', async (req, res) => {
 });
 
 // Add new Product
-app.post('/api/products', passport.authenticate('jwt', { session: false }), isAdmin, (req, res) => {
+app.post('/api/products', passport.authenticate('jwt', { session: false }), isAdmin, upload.single('image'), async (req, res) => {
   let formData = req.body;
-  console.log(formData);
-  res.json({message: "form processed"});
+  formData.image = (req.file)? req.file.originalname : "";
+  try {
+    await dataService.addProduct(formData);
+    res.json({success: true, message: "form processed"});
+  } catch (err) {
+    res.json({success: false, message: `Error: ${err}`})
+  }
 });
 
 // Register new user

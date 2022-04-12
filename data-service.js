@@ -78,27 +78,27 @@ module.exports.connect = async () => {
     Order = db.model("orders", orderSchema);
     return;
   })
-}
+};
 
 module.exports.listening = async () => {
   return 'Data service connected';
-}
-
-module.exports.addProduct = async (data) => {
-  let newProduct = new Product(data);
-  newProduct.save((err) => {
-    if(err) {
-      throw `There was an error creating the product: ${err}`;
-    } else {
-      console.log('product added');
-      return;
-    }
-  });
-}
+;}
 
 module.exports.getAllProducts = async () => {
   return Product.find().exec();
-}
+};
+
+module.exports.addProduct = async (formData) => {
+  let newProduct = new Product(formData);
+  newProduct.save((err) => {
+    if(err) {
+      throw `Error adding product: ${err}`;
+    } else {
+      console.log(`${formData.name} was added to the products collection`);
+      return;
+    }
+  });
+};
 
 module.exports.registerUser = async (userData) => {
   try {
