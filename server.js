@@ -94,6 +94,17 @@ app.get('/api/products/', async (req, res) => {
   }
 });
 
+// Get a single product
+app.get('/api/products/:id', async (req, res) => {
+  let productId = req.params.id;
+  try {
+    let product = await dataService.getProductById(productId);
+    res.json({product});
+  } catch (err) {
+    res.json({message: `there was an error: ${err}`});
+  }
+});
+
 // Add new Product
 app.post('/api/products', passport.authenticate('jwt', { session: false }), isAdmin, upload.single('image'), async (req, res) => {
   let formData = req.body;
@@ -105,6 +116,22 @@ app.post('/api/products', passport.authenticate('jwt', { session: false }), isAd
     res.json({success: false, message: `Error: ${err}`})
   }
 });
+
+// Edit a Product
+app.put('/api/products/:id', passport.authenticate('jwt', { session: false }), isAdmin, upload.single('image'), async (req, res) => {
+  let formData = req.body;
+  let id = req.params.id;
+  if (req.file) {
+    formData.image = req.file.originalname;
+  } 
+  try {
+    await dataService.editProduct(formData, id);
+    res.json({success: true, message: "form processed"});
+  } catch (err) {
+    res.json({success: false, message: `Error: ${err}`})
+  }
+});
+
 
 // Register new user
 app.post('/api/users', async (req, res) => {

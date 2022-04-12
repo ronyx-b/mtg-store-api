@@ -88,6 +88,10 @@ module.exports.getAllProducts = async () => {
   return Product.find().exec();
 };
 
+module.exports.getProductById = async (productId) => {
+  return Product.findOne({_id: productId}).exec();
+};
+
 module.exports.addProduct = async (formData) => {
   let newProduct = new Product(formData);
   newProduct.save((err) => {
@@ -98,6 +102,10 @@ module.exports.addProduct = async (formData) => {
       return;
     }
   });
+};
+
+module.exports.editProduct = async (formData, id) => {
+  return Product.updateOne({ _id: id }, { $set: { ...formData } }).exec();
 };
 
 module.exports.registerUser = async (userData) => {
