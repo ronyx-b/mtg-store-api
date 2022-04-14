@@ -71,16 +71,16 @@ const upload = multer({ storage: storage });
 app.use('/img', express.static('img'));
 
 app.get('/', (req, res) => {
-  res.send('Access API through /api route');
+  res.status(200).send('Access API through /api route');
 });
 
 // API Entry point
 app.get('/api', async (req, res) => {
   try {
     let msg = await dataService.listening();
-    res.json({message: `API Listening, Data service: ${msg}`});
+    res.status(200).json({message: `API Listening, Data service: ${msg}`});
   } catch (err) {
-    res.json({message: `there was an error: ${err}`});
+    res.status(422).json({message: `there was an error: ${err}`});
   }
 });
 
@@ -88,9 +88,9 @@ app.get('/api', async (req, res) => {
 app.get('/api/products/', async (req, res) => {
   try {
     let products = await dataService.getAllProducts();
-    res.json({products});
+    res.status(200).json({products});
   } catch (err) {
-    res.json({message: `there was an error: ${err}`});
+    res.status(422).json({message: `there was an error: ${err}`});
   }
 });
 
@@ -99,9 +99,9 @@ app.get('/api/products/:id', async (req, res) => {
   let productId = req.params.id;
   try {
     let product = await dataService.getProductById(productId);
-    res.json({product});
+    res.status(200).json({product});
   } catch (err) {
-    res.json({message: `there was an error: ${err}`});
+    res.status(422).json({message: `there was an error: ${err}`});
   }
 });
 
@@ -111,9 +111,9 @@ app.post('/api/products', passport.authenticate('jwt', { session: false }), isAd
   formData.image = (req.file)? req.file.originalname : "";
   try {
     await dataService.addProduct(formData);
-    res.json({success: true, message: "form processed"});
+    res.status(201).json({success: true, message: "form processed"});
   } catch (err) {
-    res.json({success: false, message: `Error: ${err}`})
+    res.status(422).json({success: false, message: `Error: ${err}`})
   }
 });
 
@@ -126,9 +126,9 @@ app.put('/api/products/:id', passport.authenticate('jwt', { session: false }), i
   } 
   try {
     await dataService.editProduct(formData, id);
-    res.json({success: true, message: "form processed"});
+    res.status(201).json({success: true, message: "form processed"});
   } catch (err) {
-    res.json({success: false, message: `Error: ${err}`})
+    res.status(422).json({success: false, message: `Error: ${err}`})
   }
 });
 
@@ -138,9 +138,9 @@ app.post('/api/users', async (req, res) => {
   try {
     let formData = req.body;
     await dataService.registerUser(formData);
-    res.json({success: true, message: 'new user registered'});
+    res.status(201).json({success: true, message: 'new user registered'});
   } catch (err) {
-    res.json({success: false, message: `Error: ${err}`})
+    res.status(422).json({success: false, message: `Error: ${err}`})
   }
 });
 
@@ -155,7 +155,7 @@ app.post('/api/user/login', async (req, res) => {
     };
     let expiresIn = (req.body.keeplogged)?{}:{expiresIn: '24h'};
     let token = jwt.sign(tokenPayload, jwtOptions.secretOrKey, expiresIn);
-    res.json({message: "login successful", token: token})
+    res.status(201).json({message: "login successful", token: token})
   } catch (err) {
     res.status(422).json({message: err});
   }
@@ -163,12 +163,12 @@ app.post('/api/user/login', async (req, res) => {
 
 // Check if user is admin
 app.post('/api/user/isAdmin', passport.authenticate('jwt', { session: false }), isAdmin, (req, res) => {
-  res.json({isAdmin: true});
+  res.status(200).json({isAdmin: true});
 });
 
 // User Account
 app.get('/api/user/account', passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.json({message: 'user authenticated'});
+  res.status(200).json({message: 'user authenticated'});
 });
 
 // Start server
