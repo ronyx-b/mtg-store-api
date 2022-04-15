@@ -94,6 +94,18 @@ app.get('/api/products/', async (req, res) => {
   }
 });
 
+// Get a collection of products
+app.post('/api/products/collection', async (req, res) => {
+  // getProductsCollection
+  let productsIds = req.body.products;
+  try {
+    let products = await dataService.getProductsCollection(productsIds);
+    res.status(200).json({products});
+  } catch (err) {
+    res.status(422).json({message: `there was an error: ${err}`});
+  }
+});
+
 // Get a single product
 app.get('/api/products/:id', async (req, res) => {
   let productId = req.params.id;
@@ -131,7 +143,6 @@ app.put('/api/products/:id', passport.authenticate('jwt', { session: false }), i
     res.status(422).json({success: false, message: `Error: ${err}`})
   }
 });
-
 
 // Register new user
 app.post('/api/users', async (req, res) => {

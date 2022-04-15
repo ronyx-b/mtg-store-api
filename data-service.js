@@ -92,6 +92,10 @@ module.exports.getProductById = async (productId) => {
   return Product.findOne({_id: productId}).exec();
 };
 
+module.exports.getProductsCollection = async(idArr) => {
+  return Product.find({ _id: { $in: idArr } }).exec();
+};
+
 module.exports.addProduct = async (formData) => {
   let newProduct = new Product(formData);
   newProduct.save((err) => {
