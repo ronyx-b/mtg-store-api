@@ -67,6 +67,18 @@ let orderSchema = new Schema({
 });
 let Order;
 
+let featuredSetsSchema = new Schema({
+  "name": String,
+  "code": String,
+  "released_at": Date,
+  "scryfall_id": String,
+  "featured": {
+    "type": Boolean,
+    "default": false
+  }
+});
+let FeaturedSet;
+
 module.exports.connect = async () => {
   let db = mongoose.createConnection(process.env.MONGODB_CONN_STR, { useUnifiedTopology: true });
   db.on('error', (err) => {
@@ -76,6 +88,7 @@ module.exports.connect = async () => {
     User = db.model("users", userSchema);
     Product = db.model("products", productSchema);
     Order = db.model("orders", orderSchema);
+    FeaturedSet = db.model("featuredSets", featuredSetsSchema);
     return;
   })
 };
@@ -95,6 +108,10 @@ module.exports.getProductById = async (productId) => {
 module.exports.getProductsCollection = async(idArr) => {
   return Product.find({ _id: { $in: idArr } }).exec();
 };
+
+// module.exports.getProductsBySet = async (set) {
+//   return Product.find({})
+// };
 
 module.exports.addProduct = async (formData) => {
   let newProduct = new Product(formData);
@@ -162,4 +179,33 @@ module.exports.login = async (userData) => {
   } catch (err) {
     throw `cant't log in: ${err}`;
   }
+};
+
+module.exports.getFeaturedSets = async () => {
+  return FeaturedSet.find().exec();
+};
+
+module.exports.addFeaturedSet = async (data) => {
+  try {
+    existingSet = await FeaturedSet.findOne({ name: data.name }).exec();
+    if(!existingSet) {
+      let newSet = new FeaturedSet(data);
+      newSet.save((err) => {
+        if(err) {
+          throw `Error saving set: ${err}`;
+        } else {
+          console.log("The new card set was saved to the Card Sets collection");
+          return;
+        }
+      });
+    } else {
+      throw "There is a set already registered with the given name";
+    }
+  } catch (err) {
+    throw `Error creating set: ${err}`;
+  }
+};
+
+module.exports.editFeaturedSet = async (data, id) => {
+  return FeaturedSet.updateOne({ _id: id }, { $set: { ...data } }).exec();
 };

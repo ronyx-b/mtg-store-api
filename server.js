@@ -106,6 +106,16 @@ app.post('/api/products/collection', async (req, res) => {
   }
 });
 
+// app.get('/api/products/set/:set', async (req, res) => {
+//   let set = req.params.set;
+//   try {
+//     let products = await dataService;
+//     res.status(200).json({products});
+//   } catch (err) {
+//     res.status(422).json({message: `there was an error: ${err}`});
+//   }
+// });
+
 // Get a single product
 app.get('/api/products/:id', async (req, res) => {
   let productId = req.params.id;
@@ -172,14 +182,35 @@ app.post('/api/user/login', async (req, res) => {
   }
 });
 
+// Check if user is logged in
+app.post('/api/user/account', passport.authenticate('jwt', { session: false }), (req, res) => {
+  res.status(200).json({message: 'user authenticated'});
+});
+
 // Check if user is admin
 app.post('/api/user/isAdmin', passport.authenticate('jwt', { session: false }), isAdmin, (req, res) => {
   res.status(200).json({isAdmin: true});
 });
 
-// User Account
-app.get('/api/user/account', passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.status(200).json({message: 'user authenticated'});
+// Get Featured sets
+app.get('/api/sets', async (req, res) => {
+  try {
+    let sets = await dataService.getFeaturedSets();
+    res.status(200).json({sets});
+  } catch (err) {
+    res.status(422).json({message: `there was an error: ${err}`});
+  }
+});
+
+// Add Featured set
+app.post('/api/sets', passport.authenticate('jwt', { session: false }), isAdmin, async (req, res) => {
+  let data = req.body;
+  try {
+    await dataService.addFeaturedSet(data);
+    res.status(201).json({success: true, message: "form processed"});
+  } catch (err) {
+    res.status(422).json({success: false, message: `Error: ${err}`})
+  }
 });
 
 // Start server
