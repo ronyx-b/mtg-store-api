@@ -202,6 +202,17 @@ app.get('/api/sets', async (req, res) => {
   }
 });
 
+// get single featured set
+app.get('/api/sets/:name', async (req, res) => {
+  let name = req.params.name;
+  try {
+    let set = await dataService.getFeaturedSet(name);
+    res.status(200).json({set});
+  } catch (err) {
+    res.status(422).json({message: `there was an error: ${err}`});
+  }
+});
+
 // Add Featured set
 app.post('/api/sets', passport.authenticate('jwt', { session: false }), isAdmin, async (req, res) => {
   let data = req.body;

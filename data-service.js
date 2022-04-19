@@ -72,6 +72,7 @@ let featuredSetsSchema = new Schema({
   "code": String,
   "released_at": Date,
   "scryfall_id": String,
+  "hero": String,
   "featured": {
     "type": Boolean,
     "default": false
@@ -183,6 +184,10 @@ module.exports.login = async (userData) => {
 
 module.exports.getFeaturedSets = async () => {
   return FeaturedSet.find().exec();
+};
+
+module.exports.getFeaturedSet = async (name) => {
+  return FeaturedSet.findOne({ name }).exec();
 };
 
 module.exports.addFeaturedSet = async (data) => {
