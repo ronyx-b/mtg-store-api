@@ -57,11 +57,17 @@ const isAdmin = (req, res, next) => {
 };
 
 // Multer Storage Configuration
-const storage = multer.diskStorage({
+const productStorage = multer.diskStorage({
   destination: "./img/",
   filename: function (req, file, cb) { cb(null, file.originalname); }
 });
-const upload = multer({ storage: storage });
+const uploadProduct = multer({ storage: productStorage });
+
+const heroStorage = multer.diskStorage({
+  destination: "./img/hero/",
+  filename: function (req, file, cb) { cb(null, file.originalname); }
+});
+const uploadHero = multer({ storage: heroStorage });
 
 /* ****************************** Server Routes ****************************** */
 // Use React build
@@ -128,7 +134,7 @@ app.get('/api/products/:id', async (req, res) => {
 });
 
 // Add new Product
-app.post('/api/products', passport.authenticate('jwt', { session: false }), isAdmin, upload.single('image'), async (req, res) => {
+app.post('/api/products', passport.authenticate('jwt', { session: false }), isAdmin, uploadProduct.single('image'), async (req, res) => {
   let formData = req.body;
   formData.image = (req.file)? req.file.originalname : "";
   try {
@@ -140,7 +146,7 @@ app.post('/api/products', passport.authenticate('jwt', { session: false }), isAd
 });
 
 // Edit a Product
-app.put('/api/products/:id', passport.authenticate('jwt', { session: false }), isAdmin, upload.single('image'), async (req, res) => {
+app.put('/api/products/:id', passport.authenticate('jwt', { session: false }), isAdmin, uploadProduct.single('image'), async (req, res) => {
   let formData = req.body;
   let id = req.params.id;
   if (req.file) {
@@ -214,8 +220,9 @@ app.get('/api/sets/:name', async (req, res) => {
 });
 
 // Add Featured set
-app.post('/api/sets', passport.authenticate('jwt', { session: false }), isAdmin, async (req, res) => {
+app.post('/api/sets', passport.authenticate('jwt', { session: false }), isAdmin, uploadHero.single('hero'), async (req, res) => {
   let data = req.body;
+  data.hero = (req.file)? req.file.originalname : "";
   try {
     await dataService.addFeaturedSet(data);
     res.status(201).json({success: true, message: "form processed"});
