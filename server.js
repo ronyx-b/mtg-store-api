@@ -189,8 +189,13 @@ app.post('/api/user/login', async (req, res) => {
 });
 
 // Check if user is logged in
-app.post('/api/user/account', passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.status(200).json({message: 'user authenticated'});
+app.post('/api/user/account', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    let user = await dataService.getUser(req.user.email);
+    res.status(200).json({message: 'user authenticated', user});
+  } catch (err) {
+    res.status(422).json({message: `there was an error: ${err}`});
+  }
 });
 
 // Check if user is admin

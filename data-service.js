@@ -14,8 +14,7 @@ let userSchema = new Schema({
     "type": String,
     "unique": true
   },
-  "first_name": String,
-  "last_name": String,
+  "name": String,
   "address": [{
     "street": String,
     "city": String,
@@ -181,6 +180,10 @@ module.exports.login = async (userData) => {
     throw `cant't log in: ${err}`;
   }
 };
+
+module.exports.getUser = async (email) => {
+  return User.findOne({ email }, ['name', 'email', 'address', 'defaultAddress', 'isAdmin']).exec();
+}
 
 module.exports.getFeaturedSets = async () => {
   return FeaturedSet.find().exec();
