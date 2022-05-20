@@ -236,6 +236,28 @@ app.post('/api/sets', passport.authenticate('jwt', { session: false }), isAdmin,
   }
 });
 
+// Checkout order
+app.post('/api/checkout', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  let order = req.body;
+  try {
+    await dataService.checkOutOrder(order);
+    res.status(201).json({success: true, message: "order processed"});
+  } catch (err) {
+    res.status(422).json({success: false, message: `Error: ${err}`})
+  }
+});
+
+// Get User Orders
+app.get('/api/users/:id/orders', async (req, res) => {
+  let user_id = req.params.id;
+  try {
+    let orders = await dataService.getUserOrders(user_id);
+    res.status(201).json({success: true, orders});
+  } catch (err) {
+    res.status(422).json({success: false, message: `Error: ${err}`})
+  }
+});
+
 // Start server
 dataService.connect().then(() => {
   app.listen(HTTP_PORT, () => { console.log(`app listening on: ${HTTP_PORT}`); });

@@ -26,7 +26,8 @@ let userSchema = new Schema({
   "isAdmin": {
     "type": Boolean,
     "default": false
-  }
+  },
+  "orders": [String]
 });
 let User;
 
@@ -196,8 +197,10 @@ module.exports.getFeaturedSet = async (name) => {
 module.exports.addFeaturedSet = async (data) => {
   try {
     existingSet = await FeaturedSet.findOne({ name: data.name }).exec();
-    if(!existingSet) {
-      let newSet = new FeaturedSet(data);
+    if(existingSet) {
+      throw "There is a set already registered with the given name";
+    }
+    let newSet = new FeaturedSet(data);
       newSet.save((err) => {
         if(err) {
           throw `Error saving set: ${err}`;
@@ -206,9 +209,6 @@ module.exports.addFeaturedSet = async (data) => {
           return;
         }
       });
-    } else {
-      throw "There is a set already registered with the given name";
-    }
   } catch (err) {
     throw `Error creating set: ${err}`;
   }
@@ -217,3 +217,21 @@ module.exports.addFeaturedSet = async (data) => {
 module.exports.editFeaturedSet = async (data, id) => {
   return FeaturedSet.updateOne({ _id: id }, { $set: { ...data } }).exec();
 };
+
+module.exports.checkOutOrder = async (order) => {
+  try {
+    let newOrder = new Order(order);
+    let orderId;
+    newOrder = await newOrder.save();
+    orderId = newOrder._id.toString();
+    console.log(`The new order has been processed, ID: ${orderId}`);
+    return User.updateOne({ _id: order.user_id }, { $push: { orders: orderId } }).exec();
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+};
+
+module.exports.getUserOrders = async (user_id) => {
+  return Order.find({ user_id }).exec();
+}
