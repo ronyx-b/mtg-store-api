@@ -195,7 +195,7 @@ module.exports.registerUser = async (userData) => {
   try {
     let existingUser = await db.model.User.findOne({ email: userData.email });
     if(!existingUser) {
-      hashedPassword = await bcrypt.hash(userData.password, 10);
+      let hashedPassword = await bcrypt.hash(userData.password, 10);
       let data = {
         email: userData.email,
         first_name: userData.firstName,
@@ -210,15 +210,7 @@ module.exports.registerUser = async (userData) => {
         password: hashedPassword,
         isAdmin: false
       };
-      let newUser = new db.model.User(data);
-      newUser.save((err) => {
-        if(err) {
-          throw `Error saving user: ${err}`;
-        } else {
-          console.log("The new user was saved to the users collection");
-          return;
-        }
-      });
+      await db.model.User.create(data);
     } else {
       throw "There is a user already registered with the given email";
     }
