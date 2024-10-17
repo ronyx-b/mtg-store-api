@@ -268,13 +268,13 @@ app.get('/api/users/:id/orders', async (req, res) => {
 // Start server
 if(require.main === module){
   app.listen(HTTP_PORT, async () => { 
-    try {
-      await dataService.connect();
-      console.log("connection to database successful");
-    }
-    catch (err) {
-      console.log(`connection to database failed: ${err}`);
-    }
+    // try {
+    //   await dataService.connect();
+    //   console.log("connection to database successful");
+    // }
+    // catch (err) {
+    //   console.log(`connection to database failed: ${err}`);
+    // }
     console.log(`app listening on: ${HTTP_PORT}`); 
   });
 }
