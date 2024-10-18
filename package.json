@@ -1,6 +1,6 @@
 {
   "name": "mtg-store-api",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "API service for mtg-store demo project",
   "main": "server.js",
   "scripts": {
