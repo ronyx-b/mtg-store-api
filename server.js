@@ -4,7 +4,7 @@ const cors = require('cors'); // load cors package
 const dotenv = require('dotenv'); // ENV variables
 dotenv.config();
 
-const multer = require('multer'); // Multer (Multipart Form Processing)
+// const multer = require('multer'); // Multer (Multipart Form Processing)
 
 const userRouter = require("./routers/user-router");
 const productsRouter = require('./routers/products-router');
@@ -17,25 +17,19 @@ app.use(express.json());
 app.use(cors());
 
 // Multer Storage Configuration
-const productStorage = multer.diskStorage({
-  destination: "./img/",
-  filename: function (req, file, cb) { cb(null, file.originalname); }
-});
-const uploadProduct = multer({ storage: productStorage });
+// const productStorage = multer.diskStorage({
+//   destination: "./img/",
+//   filename: function (req, file, cb) { cb(null, file.originalname); }
+// });
+// const uploadProduct = multer({ storage: productStorage });
 
-const heroStorage = multer.diskStorage({
-  destination: "./img/hero/",
-  filename: function (req, file, cb) { cb(null, file.originalname); }
-});
-const uploadHero = multer({ storage: heroStorage });
+// const heroStorage = multer.diskStorage({
+//   destination: "./img/hero/",
+//   filename: function (req, file, cb) { cb(null, file.originalname); }
+// });
+// const uploadHero = multer({ storage: heroStorage });
 
 /* ****************************** Server Routes ****************************** */
-// Use React build
-// app.use('/', express.static('build'));
-
-// Images access route
-app.use('/img', express.static(__dirname + '/img'));
-
 app.get('/', (req, res) => {
   res.status(200).send('Access API through /api route');
 });
