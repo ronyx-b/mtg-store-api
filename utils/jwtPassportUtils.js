@@ -25,6 +25,7 @@ let strategy = new Strategy(jwtOptions, function (jwt_payload, next) {
 
 passport.use(strategy);
 
+
 /**
  * gets a signed token
  * @param {{_id: string, email: string, isAdmin: boolean}} tokenPayload token data payload 
@@ -36,37 +37,20 @@ const signToken = (tokenPayload, optionsExpiresIn = { expiresIn: "24h" }) => {
   return token;
 }
 
-/**
- * Checks if request has user validated and if it is an Admin
- * @async
- * @param {Request} req 
- * @param {Response} res
- * @returns {{ _id: string, email: string, isAdmin: boolean }} An object with user token payload 
- */
-// const getUser = (req, res, next = () => {}) => {
-//   passport.authenticate("jwt", { session: false })(req, res, next);
-//   return req?.user;
-// };
 
 /**
- * Checks if request has user validated and if it is an Admin
- * @async
- * @param {Request} req 
- * @param {Response} res
- * @returns {boolean} isAdmin value
+ * Middleware that authenticates a token sent on the request headers and adds the decoded token payload to the request on a "user" property.
+ * @param {import("express").Request} req 
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} next 
  */
-// const isAdmin = (req, res, next = () => {}) => {
-//   passport.authenticate("jwt", { session: false })(req, res, next);
-//   return req?.user?.isAdmin;
-// };
-
-
 const authenticateToken = (req, res, next = () => {}) => {
   passport.authenticate("jwt", { session: false })(req, res, next);
 };
 
+
 /**
- * Redirect user if is not admin (for use on restricted admin routes)
+ * Middleware that redirect the user if is not admin (for use on restricted admin routes)
  * @param {import("express").Request} req 
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next 
@@ -78,13 +62,12 @@ const allowAdminAccess = (req, res, next = () => {}) => {
   res.status(403).json({ message: "access not allowed" });
 };
 
+
 /* ********** Export jwt Passport Utils ********** */
 const jwtPassportUtils = {
   signToken,
   authenticateToken,
   allowAdminAccess,
-  // getUser,
-  // isAdmin,
 };
 
 module.exports = jwtPassportUtils;
