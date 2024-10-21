@@ -73,10 +73,9 @@ const authenticateToken = (req, res, next = () => {}) => {
  */
 const allowAdminAccess = (req, res, next = () => {}) => {
   if (req.user.isAdmin) {
-    next()
-  } else {
-    res.status(403).json({ message: "access not allowed" });
-  };
+    next();
+  }
+  res.status(403).json({ message: "access not allowed" });
 };
 
 /* ********** Export jwt Passport Utils ********** */
