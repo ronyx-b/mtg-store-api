@@ -1,6 +1,7 @@
 const express = require("express");
 const productsRouter = express.Router();
 const productsController = require("../data-service/productsController");
+const { uploadProductImage, cloudinaryFileUploader } = require("../utils/fileUploadUtils");
 
 /**
  * GET all products, paginated
@@ -17,15 +18,14 @@ productsRouter.get("/", async (req, res) => {
   }
 });
 
-/* ******************** TODO ******************** */
 /**
  * POST add a new product
  */
-productsRouter.post("/", async (req, res) => {
-  let formData = req.body;
-  formData.image = (req.file)? req.file.originalname : "";
+productsRouter.post("/", uploadProductImage, async (req, res) => {
   try {
-    // await dataService.addProduct(formData);
+    const cldRes = await cloudinaryFileUploader(req.file);
+    let formData = { ...req.body, image: cldRes.public_id };
+    await productsController.addNewProduct(formData);
     res.status(201).json({ success: true, message: "form processed", formData });
   } catch (err) {
     res.status(422).json({ success: false, message: `Error: ${err}` })

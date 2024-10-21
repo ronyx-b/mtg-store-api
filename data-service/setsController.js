@@ -43,9 +43,22 @@ const getSetByCode = async (setCode) => {
   return setData
 } 
 
-/* ******************** TODO ******************** */
+/**
+ * Creates a new featured set
+ * @async
+ * @param {Object} setData 
+ */
 const addFeaturedSet = async (setData) => {
-
+  try {
+    const db = await DataService.connect();
+    let existingSet = await db.model.FeaturedSet.findOne({ code: setData.code });
+    if(existingSet) {
+      throw "The set is already registered";
+    }
+    await db.model.FeaturedSet.create(setData);
+  } catch (err) {
+    throw `Error creating set: ${err}`;
+  }
 };
 
 const setsController = {

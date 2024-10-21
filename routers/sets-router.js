@@ -1,6 +1,7 @@
 const express = require("express");
 const setsRouter = express.Router();
 const setsController = require("../data-service/setsController");
+const { uploadSetHero, cloudinaryFileUploader } = require("../utils/fileUploadUtils");
 
 /**
  * GET all featured sets
@@ -20,9 +21,12 @@ setsRouter.get("/", async (req, res) => {
 /**
  * POST add featured set
  */
-setsRouter.post("/", async (req, res) => {
+setsRouter.post("/", uploadSetHero, async (req, res) => {
   try {
-    const setData = req.body;
+    const { name, code, released_at, scryfall_id, featured } = req.body;
+    const cldRes = await cloudinaryFileUploader(req.file);
+    const hero = cldRes.public_id
+    const setData = { name, code, released_at, scryfall_id, featured, hero };
     await setsController.addFeaturedSet(setData);
     res.status(201).json({ success: true, message: "form processed", setData });
   }
@@ -31,6 +35,9 @@ setsRouter.post("/", async (req, res) => {
   }
 });
 
+/**
+ * GET a sets details
+ */
 setsRouter.get("/:code", async (req, res) => {
   try {
     const code = req.params?.code;

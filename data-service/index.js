@@ -70,7 +70,10 @@ let Order;
 
 let featuredSetsSchema = new Schema({
   "name": String,
-  "code": String,
+  "code": {
+    "type": String,
+    "unique": true
+  },
   "released_at": Date,
   "scryfall_id": String,
   "hero": String,

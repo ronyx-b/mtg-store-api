@@ -4,8 +4,6 @@ const cors = require('cors'); // load cors package
 const dotenv = require('dotenv'); // ENV variables
 dotenv.config();
 
-// const multer = require('multer'); // Multer (Multipart Form Processing)
-
 const userRouter = require("./routers/user-router");
 const productsRouter = require('./routers/products-router');
 const setsRouter = require('./routers/sets-router');
@@ -16,18 +14,6 @@ const HTTP_PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// Multer Storage Configuration
-// const productStorage = multer.diskStorage({
-//   destination: "./img/",
-//   filename: function (req, file, cb) { cb(null, file.originalname); }
-// });
-// const uploadProduct = multer({ storage: productStorage });
-
-// const heroStorage = multer.diskStorage({
-//   destination: "./img/hero/",
-//   filename: function (req, file, cb) { cb(null, file.originalname); }
-// });
-// const uploadHero = multer({ storage: heroStorage });
 
 /* ****************************** Server Routes ****************************** */
 app.get('/', (req, res) => {
