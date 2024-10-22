@@ -46,10 +46,20 @@ const cloudinaryFileUploader = async (file) => {
   }
 };
 
+const deleteImage = async (public_id) => {
+  try {
+    await cloudinary.uploader.destroy(public_id, { invalidate: true });
+  }
+  catch (err) {
+    throw new Error(`Error deleting image id:[${public_id}]:${err}`);
+  }
+};
+
 const fileUploadUtils = {
   uploadSetHero,
   uploadProductImage,
   cloudinaryFileUploader,
+  deleteImage,
 };
 
 module.exports = fileUploadUtils;

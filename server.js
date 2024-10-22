@@ -33,6 +33,10 @@ app.use("/api/user", userRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/sets", setsRouter);
 
+app.use((req, res) => {
+  res.status(404).json({ message: "Not Found" });
+});
+
 // Start server
 if(require.main === module){
   app.listen(HTTP_PORT, async () => { 
