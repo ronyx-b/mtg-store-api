@@ -87,7 +87,10 @@ productsRouter.put("/:id", uploadProductImage, async (req, res) => {
       await deleteImage(req.body.previousImage);
       cldRes = await cloudinaryFileUploader(req.file);
     }
-    let formData = { ...req.body, image: cldRes?.public_id || null };
+    let formData = { ...req.body };
+    if (cldRes.public_id) {
+      formData.image = cldRes.public_id;
+    }
     if (cldRes !== null) {
       delete formData.previousImage;
     }
