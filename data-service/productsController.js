@@ -91,12 +91,25 @@ const addNewProduct = async (formData) => {
   }
 }
 
+const editProduct = async (id, formData) => {
+  try {
+    const db = await DataService.connect();
+    if (!db.error) {
+      await db.model.Product.updateOne({ _id: id }, { $set: { ...formData } });
+    }
+  }
+  catch (err) {
+    throw `Error creating set: ${err}`;
+  }
+}
+
 const productsController = {
   getAllProducts,
   getAllProductsBySet,
   getProductDetailsById,
   getProductsCollection,
   addNewProduct,
+  editProduct,
 };
 
 module.exports = productsController;

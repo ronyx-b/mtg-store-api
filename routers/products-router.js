@@ -1,7 +1,7 @@
 const express = require("express");
 const productsRouter = express.Router();
 const productsController = require("../data-service/productsController");
-const { uploadProductImage, cloudinaryFileUploader } = require("../utils/fileUploadUtils");
+const { uploadProductImage, cloudinaryFileUploader, deleteImage } = require("../utils/fileUploadUtils");
 
 /**
  * GET all products, paginated
@@ -76,18 +76,28 @@ productsRouter.get("/:id", async (req, res) => {
   }
 });
 
-/* ******************** TODO ******************** */
 /**
  * PUT update details of a product
  */
-productsRouter.put("/:id", async (req, res) => {
+productsRouter.put("/:id", uploadProductImage, async (req, res) => {
   try {
     const id = req.params?.id;
-    const formData = req.body
-    res.status(200).json({ id, formData });
-  }
-  catch (err) {
-    res.status(422).json({ message: err, error: err });
+    let cldRes = null;
+    if (req.file && req.body?.previousImage) {
+      await deleteImage(req.body.previousImage);
+      cldRes = await cloudinaryFileUploader(req.file);
+    }
+    let formData = { ...req.body };
+    if (cldRes.public_id) {
+      formData.image = cldRes.public_id;
+    }
+    if (cldRes !== null) {
+      delete formData.previousImage;
+    }
+    await productsController.editProduct(id, formData);
+    res.status(201).json({ success: true, message: "form processed", formData });
+  } catch (err) {
+    res.status(422).json({ success: false, message: `Error: ${err}` })
   }
 });
 
