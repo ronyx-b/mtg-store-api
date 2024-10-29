@@ -22,7 +22,6 @@ let userSchema = new Schema({
     "type": Boolean,
     "default": false
   },
-  "orders": [String]
 });
 
 /** @type {mongoose.Model} */
