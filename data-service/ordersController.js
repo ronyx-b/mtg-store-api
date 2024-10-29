@@ -32,9 +32,24 @@ const getOrdersByUserId = async (id) => {
   }
 };
 
+const checkoutOrder = async (order) => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    await db.model.Order.create(order);
+    return;
+  }
+  catch (err) {
+    throw new Error(`Error checking out order: ${err}`);
+  }
+};
+
 const ordersController = {
   getOrderDetails,
   getOrdersByUserId,
+  checkoutOrder,
 }
 
 module.exports = ordersController;

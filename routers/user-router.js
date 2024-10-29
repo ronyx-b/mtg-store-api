@@ -80,18 +80,25 @@ userRouter.get("/orders", jwtPassportUtils.authenticateToken, async (req, res) =
   }
 });
 
-/* ******************** TODO ******************** */
 /**
  * POST checkout a new order
  */
 userRouter.post("/orders", jwtPassportUtils.authenticateToken, async (req, res) => {
-  let order = req.body;
+  /** @type {{ user_id: string, date: Date, address: Object, products: Object[] }} */
+  const order = { 
+    user_id: req.body.user_id, 
+    date: req.body.date, 
+    address: req.body.address,
+    products: req.body.products,
+  };
   try {
-    // await dataService.checkOutOrder(order);
-    // const orders = await ordersController.getOrdersByUserId(req.user._id);
+    if (!order.user_id || !order.date || !order.address || !order.products || order.products?.length === 0 ) {
+      throw new Error("invalid order format");
+    }
+    await ordersController.checkoutOrder(order);
     res.status(201).json({ success: true, message: "order processed", order });
   } catch (err) {
-    res.status(422).json({success: false, message: `Error: ${err}`})
+    res.status(422).json({ success: false, message: `Error: ${err}` });
   }
 });
 
