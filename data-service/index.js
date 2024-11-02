@@ -46,6 +46,10 @@ let Product;
 let orderSchema = new Schema({
   "user_id": String,
   "date": Date,
+  "number": {
+    "type": Number,
+    "unique": true
+  },
   "address": {
     "street": String,
     "city": String,

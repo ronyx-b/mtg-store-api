@@ -95,6 +95,8 @@ userRouter.post("/orders", jwtPassportUtils.authenticateToken, async (req, res) 
     if (!order.user_id || !order.date || !order.address || !order.products || order.products?.length === 0 ) {
       throw new Error("invalid order format");
     }
+    const nextOrderNumber = await ordersController.getNextOrderNumber();
+    order.number = nextOrderNumber;
     await ordersController.checkoutOrder(order);
     res.status(201).json({ success: true, message: "order processed", order });
   } catch (err) {
