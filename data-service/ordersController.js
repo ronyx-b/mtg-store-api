@@ -20,7 +20,17 @@ const getOrdersByUserId = async (id) => {
   try {
     const db = await DataService.connect();
     if (!db.error) {
-      const orders = await db.model.Order.find({ user_id: id });
+      const orders = await db.model.Order.find(
+        { 
+          user_id: id 
+        }, 
+        null, 
+        { 
+          sort: { 
+            date: "desc" 
+          } 
+        },
+      );
       if (!orders) {
         throw 'orders not found';
       }
@@ -46,10 +56,34 @@ const checkoutOrder = async (order) => {
   }
 };
 
+const getNextOrderNumber = async () => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    const lastOrder = await db.model.Order.findOne(
+      {},
+      null,
+      {
+        sort: {
+          number: "desc"
+        }
+      }
+    );
+    const nextOrderNumber = lastOrder.number + 1;
+    return nextOrderNumber;
+  }
+  catch (err) {
+    throw new Error(`Error getting next order number: ${err}`);
+  }
+};
+
 const ordersController = {
   getOrderDetails,
   getOrdersByUserId,
   checkoutOrder,
+  getNextOrderNumber,
 }
 
 module.exports = ordersController;
