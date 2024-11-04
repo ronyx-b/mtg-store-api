@@ -72,8 +72,10 @@ userRouter.get("/is-admin", jwtPassportUtils.authenticateToken, async (req, res)
  */
 userRouter.get("/orders", jwtPassportUtils.authenticateToken, async (req, res) => {
   try {
-    const orders = await ordersController.getOrdersByUserId(req.user._id);
-    res.status(200).json({ orders });
+    const pageSize = req.query?.pageSize || 10;
+    const pageNum = req.query?.pageNum || 1;
+    const { count, orders } = await ordersController.getOrdersByUserId(req.user._id, { pageSize, pageNum });
+    res.status(200).json({ count, orders, pageSize, pageNum });
   }
   catch (err) {
     res.status(422).json({ message: err, error: err });
@@ -86,7 +88,7 @@ userRouter.get("/orders", jwtPassportUtils.authenticateToken, async (req, res) =
 userRouter.post("/orders", jwtPassportUtils.authenticateToken, async (req, res) => {
   /** @type {{ user_id: string, date: Date, address: Object, products: Object[] }} */
   const order = { 
-    user_id: req.body.user_id, 
+    user_id: req.user._id, 
     date: req.body.date, 
     address: req.body.address,
     products: req.body.products,
@@ -99,6 +101,23 @@ userRouter.post("/orders", jwtPassportUtils.authenticateToken, async (req, res) 
     order.number = nextOrderNumber;
     await ordersController.checkoutOrder(order);
     res.status(201).json({ success: true, message: "order processed", order });
+  } catch (err) {
+    res.status(422).json({ success: false, message: `Error: ${err}` });
+  }
+});
+
+/**
+ * GET an order by its ID
+ */
+userRouter.get("/orders/:order_id", jwtPassportUtils.authenticateToken, async (req, res) => {
+  const order_id = req.params?.order_id;
+  const user_id = req.user._id;
+  try {
+    const order = await ordersController.getOrderDetails(order_id);
+    if (order.user_id !== user_id) {
+      res.status(401).json({ message: "not authorized" });
+    }
+    res.status(200).json({ order });
   } catch (err) {
     res.status(422).json({ success: false, message: `Error: ${err}` });
   }
