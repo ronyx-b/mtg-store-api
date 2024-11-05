@@ -75,10 +75,31 @@ const getUserData = async (id) => {
   }
 };
 
+const changePassword = async (id, oldPassword, newPassword) => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    const userData = await db.model.User.findById(id, ['password']);
+    const match = await bcrypt.compare(oldPassword, userData.password);
+    if (match !== true) {
+      throw 'the old password is incorrect';
+    }
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.model.User.findByIdAndUpdate(id, { $set: { password: newHashedPassword } });
+    return
+  }
+  catch (err) {
+    throw `error updating password: ${err}`;
+  }
+};
+
 const userController = {
   registerUser,
   loginUser,
   getUserData,
+  changePassword,
 }
 
 module.exports = userController;
