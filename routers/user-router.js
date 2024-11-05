@@ -67,6 +67,22 @@ userRouter.get("/is-admin", jwtPassportUtils.authenticateToken, async (req, res)
   }
 });
 
+
+userRouter.put("/password", jwtPassportUtils.authenticateToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const id = req.user._id;
+    if (newPassword !== confirmPassword) {
+      throw new Error("passwords don't match");
+    }
+    await userController.changePassword(id, oldPassword, newPassword);
+    res.status(201).json({ success: true, message: "password updated" });
+  }
+  catch (err) {
+    res.status(422).json({ message: err, error: err });
+  }
+});
+
 /**
  * GET user orders
  */
