@@ -67,7 +67,9 @@ userRouter.get("/is-admin", jwtPassportUtils.authenticateToken, async (req, res)
   }
 });
 
-
+/**
+ * PUT change the user's password
+ */
 userRouter.put("/password", jwtPassportUtils.authenticateToken, async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -78,6 +80,51 @@ userRouter.put("/password", jwtPassportUtils.authenticateToken, async (req, res)
     await userController.changePassword(id, oldPassword, newPassword);
     res.status(201).json({ success: true, message: "password updated" });
   }
+  catch (err) {
+    res.status(422).json({ message: err, error: err });
+  }
+});
+
+/**
+ * POST add shipping address
+ */
+userRouter.post("/address", jwtPassportUtils.authenticateToken, async (req, res) => {
+  try {
+    const address = req.body;
+    const id = req.user._id;
+    await userController.addAddress(id, address);
+    res.status(201).json({ success: true, message: "shipping address added" });
+  } 
+  catch (err) {
+    res.status(422).json({ message: err, error: err });
+  }
+});
+
+/**
+ * PUT update shipping address
+ */
+userRouter.put("/address", jwtPassportUtils.authenticateToken, async (req, res) => {
+  try {
+    const address = req.body;
+    const id = req.user._id;
+    await userController.editAddress(id, address);
+    res.status(200).json({ success: true, message: "shipping address updated" });
+  } 
+  catch (err) {
+    res.status(422).json({ message: err, error: err });
+  }
+});
+
+/**
+ * DELETE shipping address
+ */
+userRouter.delete("/address/:id", jwtPassportUtils.authenticateToken, async (req, res) => {
+  try {
+    const addressId = req.params.id;
+    const id = req.user._id;
+    await userController.deleteAddress(id, addressId);
+    res.status(200).json({ success: true, message: "shipping address deleted" });
+  } 
   catch (err) {
     res.status(422).json({ message: err, error: err });
   }

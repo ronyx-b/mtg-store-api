@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const log4js = require("log4js");
+
+const logger = log4js.getLogger();
+logger.level = "debug";
 
 const Schema = mongoose.Schema
 
@@ -10,7 +14,9 @@ let userSchema = new Schema({
     "unique": true
   },
   "name": String,
+  "phone": String,
   "address": [{
+    "name": String,
     "street": String,
     "city": String,
     "province": String,
@@ -51,6 +57,7 @@ let orderSchema = new Schema({
     "unique": true
   },
   "address": {
+    "name": String,
     "street": String,
     "city": String,
     "province": String,
@@ -117,11 +124,13 @@ class DataService {
           Order: this.connection.model("orders", orderSchema),
           FeaturedSet: this.connection.model("featuredSets", featuredSetsSchema),
         }
-        console.log("Connection to DB successful");
+        logger.info("Connection to DB successful");
+        // console.log("Connection to DB successful");
       }
     }
     catch (error) {
-      console.log('Mongoose connection error:', error);
+      logger.error(`Mongoose connection error: ${error}`);
+      // console.log('Mongoose connection error:', error);
       DataService.error = error
     }
     return DataService;

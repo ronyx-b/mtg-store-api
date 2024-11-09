@@ -1,7 +1,24 @@
 const DataService = require("./index");
 const bcrypt = require("bcrypt");
+const log4js = require("log4js");
 
-/** @param {{ name: string, street: string, city: string, province: string, postal: string, email: string, password: string, password2: string }} userData */
+const logger = log4js.getLogger();
+logger.level = "debug";
+
+/** 
+ * Registers a user
+ * @async
+ * @param {Object} userData
+ * @param {string} userData.name
+ * @param {string} userData.email
+ * @param {string} [userData.phone]
+ * @param {string} userData.street
+ * @param {string} userData.city
+ * @param {string} userData.province
+ * @param {string} userData.postal
+ * @param {string} userData.password
+ * @param {string} userData.password2
+ */
 const registerUser = async (userData) => {
   try {
     if (userData.password !== userData.password2) {
@@ -17,7 +34,9 @@ const registerUser = async (userData) => {
       let data = {
         email: userData.email,
         name: userData.name,
+        phone: userData?.phone,
         address: [{
+          name: userData.name,
           street: userData.street,
           city: userData.city,
           province: userData.province,
@@ -95,11 +114,66 @@ const changePassword = async (id, oldPassword, newPassword) => {
   }
 };
 
+const addAddress = async (id, newAddress) => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    await db.model.User.updateOne(
+      { _id: id },
+      { $push: { address: newAddress } }
+    );
+  }
+  catch (err) {
+    throw `error adding address: ${err}`;
+  }
+};
+
+const editAddress = async (id, updatedAddress) => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    await db.model.User.updateOne(
+      { _id: id, "address._id": updatedAddress._id },
+      { $set: { "address.$": updatedAddress } }
+    );
+  }
+  catch (err) {
+    throw `error editing address: ${err}`;
+  }
+};
+
+const deleteAddress = async (id, addressId) => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    const user = await db.model.User.findById(id);
+    if (user.address.length <= 1) {
+      throw new Error("cannot delete last address");
+    } 
+    await db.model.User.updateOne(
+      { _id: id },
+      { $pull: { address: { _id: addressId } } }
+    );
+  }
+  catch (err) {
+    throw `error deleting address: ${err}`;
+  }
+};
+
 const userController = {
   registerUser,
   loginUser,
   getUserData,
   changePassword,
+  addAddress,
+  editAddress,
+  deleteAddress,
 }
 
 module.exports = userController;
