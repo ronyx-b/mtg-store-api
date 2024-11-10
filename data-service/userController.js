@@ -42,11 +42,13 @@ const registerUser = async (userData) => {
           province: userData.province,
           postal: userData.postal
         }],
-        defaultAddress: 0,
+        // defaultAddress: 0,
         password: hashedPassword,
         isAdmin: false
       };
-      await db.model.User.create(data);
+      const newUser = await db.model.User.create(data);
+      newUser.defaultAddress = newUser.address[0]._id;
+      newUser.save();
     }
   }
   catch (error) {
@@ -166,6 +168,22 @@ const deleteAddress = async (id, addressId) => {
   }
 };
 
+const updateDefaultAddress = async (id, addressId) => {
+  try {
+    const db = await DataService.connect();
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    await db.model.User.updateOne(
+      { _id: id },
+      { $set: { defaultAddress: addressId } }
+    );
+  }
+  catch (err) {
+    throw `error updating default address: ${err}`;
+  }
+};
+
 const userController = {
   registerUser,
   loginUser,
@@ -174,6 +192,7 @@ const userController = {
   addAddress,
   editAddress,
   deleteAddress,
+  updateDefaultAddress,
 }
 
 module.exports = userController;

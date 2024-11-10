@@ -116,6 +116,21 @@ userRouter.put("/address", jwtPassportUtils.authenticateToken, async (req, res) 
 });
 
 /**
+ * PUT update default address
+ */
+userRouter.put("/address/default", jwtPassportUtils.authenticateToken, async (req, res) => {
+  try {
+    const addressId = req.body.addressId;
+    const id = req.user._id;
+    await userController.updateDefaultAddress(id, addressId);
+    res.status(200).json({ success: true, message: "default shipping address updated", addressId });
+  }
+  catch (err) {
+    res.status(422).json({ message: err, error: err });
+  }
+});
+
+/**
  * DELETE shipping address
  */
 userRouter.delete("/address/:id", jwtPassportUtils.authenticateToken, async (req, res) => {
