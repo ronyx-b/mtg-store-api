@@ -22,7 +22,7 @@ let userSchema = new Schema({
     "province": String,
     "postal": String
   }],
-  "defaultAddress": Number,
+  "defaultAddress": String,
   "password": String,
   "isAdmin": {
     "type": Boolean,
