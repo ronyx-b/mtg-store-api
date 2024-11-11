@@ -1,4 +1,5 @@
 const DataService = require("./index");
+const { ObjectId } = require('mongoose').Types;
 const bcrypt = require("bcrypt");
 const log4js = require("log4js");
 
@@ -122,10 +123,13 @@ const addAddress = async (id, newAddress) => {
     if (db.error) {
       throw new Error("error connecting to DB");
     }
+    const addressId = new ObjectId();
+    newAddress._id = addressId;
     await db.model.User.updateOne(
       { _id: id },
       { $push: { address: newAddress } }
     );
+    return addressId;
   }
   catch (err) {
     throw `error adding address: ${err}`;
