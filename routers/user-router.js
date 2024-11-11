@@ -90,9 +90,14 @@ userRouter.put("/password", jwtPassportUtils.authenticateToken, async (req, res)
  */
 userRouter.post("/address", jwtPassportUtils.authenticateToken, async (req, res) => {
   try {
-    const address = req.body;
+    const { name, street, city, province, postal } = req.body;
+    const address = { name, street, city, province, postal };
+    const makeDefaultAddress = req.body.makeDefaultAddress;
     const id = req.user._id;
-    await userController.addAddress(id, address);
+    const addressId = await userController.addAddress(id, address);
+    if (makeDefaultAddress) {
+      await userController.updateDefaultAddress(id, addressId);
+    }
     res.status(201).json({ success: true, message: "shipping address added" });
   } 
   catch (err) {
@@ -105,9 +110,14 @@ userRouter.post("/address", jwtPassportUtils.authenticateToken, async (req, res)
  */
 userRouter.put("/address", jwtPassportUtils.authenticateToken, async (req, res) => {
   try {
-    const address = req.body;
+    const { name, street, city, province, postal, _id } = req.body;
+    const address = { name, street, city, province, postal, _id };
+    const makeDefaultAddress = req.body.makeDefaultAddress;
     const id = req.user._id;
     await userController.editAddress(id, address);
+    if (makeDefaultAddress) {
+      await userController.updateDefaultAddress(id, address._id);
+    }
     res.status(200).json({ success: true, message: "shipping address updated" });
   } 
   catch (err) {
