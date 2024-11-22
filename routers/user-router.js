@@ -98,7 +98,7 @@ userRouter.post("/address", jwtPassportUtils.authenticateToken, async (req, res)
     if (makeDefaultAddress) {
       await userController.updateDefaultAddress(id, addressId);
     }
-    res.status(201).json({ success: true, message: "shipping address added" });
+    res.status(201).json({ success: true, message: "shipping address added", addressId });
   } 
   catch (err) {
     res.status(422).json({ message: err, error: err });
