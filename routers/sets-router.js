@@ -14,7 +14,7 @@ setsRouter.get("/", async (req, res) => {
     res.status(200).json({ featuredSetList });
   }
   catch (err) {
-    res.status(422).json({ message: err, error: err });
+    res.status(422).json({ message: err });
   }
 });
 
@@ -31,7 +31,7 @@ setsRouter.post("/", uploadSetHero, async (req, res) => {
     res.status(201).json({ success: true, message: "form processed", setData });
   }
   catch (err) {
-    res.status(422).json({ message: err, error: err });
+    res.status(422).json({ success: false, message: err });
   }
 });
 
@@ -45,7 +45,7 @@ setsRouter.get("/:code", async (req, res) => {
     res.status(200).json({ set });
   }
   catch (err) {
-    res.status(422).json({ success: false, message: err, error: err });
+    res.status(422).json({ success: false, message: err });
   }
 });
 
