@@ -6,13 +6,20 @@ const DataService = require("./index");
  * @param {{pageSize: number|string, pageNum: number|string}} [pagination] sets pagination por results
  * @returns 
  */
-const getAllProducts = async (pagination = {pageSize: 10, pageNum: 1}) => {
-  const db = await DataService.connect();
-  let productList = [];
-  const pageSize = Number(pagination.pageSize);
-  const pageNum = Number(pagination.pageNum);
-  if (!db.error) {
-    productList = await db.model.Product.find(
+const getAllProducts = async (pagination = {pageSize: 20, pageNum: 1}) => {
+  try {
+    const db = await DataService.connect();
+    // let productList = [];
+    const pageSize = Number(pagination.pageSize);
+    const pageNum = Number(pagination.pageNum);
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    const count = await db.model.Product.countDocuments();
+    if (count < (pageSize * (pageNum - 1))) {
+      throw new Error("page out of range");
+    }
+    const productList = await db.model.Product.find(
       {}, 
       null, 
       { 
@@ -20,13 +27,16 @@ const getAllProducts = async (pagination = {pageSize: 10, pageNum: 1}) => {
         skip: pageNum > 1 ? (pageNum - 1) * pageSize : 0,
       }
     );
+    return {
+      productList,
+      pageSize,
+      pageNum,
+      count
+    };
   }
-  // db.connection.close();
-  return {
-    productList,
-    pageSize,
-    pageNum
-  };
+  catch (err) {
+    throw `error looking for products data: ${err}`;
+  }
 };
 
 /**
@@ -36,13 +46,19 @@ const getAllProducts = async (pagination = {pageSize: 10, pageNum: 1}) => {
  * @param {{pageSize: number|string, pageNum: number|string}} [pagination] sets pagination por results
  * @returns 
  */
-const getAllProductsBySet = async (set = "", pagination = {pageSize: 10, pageNum: 1}) => {
-  const db = await DataService.connect();
-  let productList = [];
-  const pageSize = Number(pagination.pageSize);
-  const pageNum = Number(pagination.pageNum);
-  if (!db.error) {
-    productList = await db.model.Product.find(
+const getAllProductsBySet = async (set = "", pagination = {pageSize: 4, pageNum: 1}) => {
+  try {
+    const db = await DataService.connect();
+    const pageSize = Number(pagination.pageSize);
+    const pageNum = Number(pagination.pageNum);
+    if (db.error) {
+      throw new Error("error connecting to DB");
+    }
+    const count = await db.model.Product.countDocuments({ cardSet: set });
+    if (count < (pageSize * (pageNum - 1))) {
+      throw new Error("page out of range");
+    }
+    const productList = await db.model.Product.find(
       { 
         cardSet: set
       }, 
@@ -52,13 +68,17 @@ const getAllProductsBySet = async (set = "", pagination = {pageSize: 10, pageNum
         skip: pageNum > 1 ? (pageNum - 1) * pageSize : 0,
       }
     );
+    return {
+      productList,
+      pageSize,
+      pageNum,
+      count
+    };
   }
-  // db.connection.close();
-  return {
-    productList,
-    pageSize,
-    pageNum
-  };
+  catch (err) {
+
+  }
+
 }
 
 const getProductDetailsById = async (id) => {

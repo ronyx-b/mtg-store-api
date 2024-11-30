@@ -8,10 +8,10 @@ const { uploadProductImage, cloudinaryFileUploader, deleteImage } = require("../
  */
 productsRouter.get("/", async (req, res) => {
   try {
-    const pageSize = req.query?.pageSize || 10;
     const pageNum = req.query?.pageNum || 1;
-    const results = await productsController.getAllProducts({ pageSize, pageNum });
-    res.status(200).json(results);
+    const pageSize = req.query?.pageSize || 20;
+    const { productList, count } = await productsController.getAllProducts({ pageSize, pageNum });
+    res.status(200).json({ productList, count, pageNum, pageSize });
   }
   catch (err) {
     res.status(422).json({ message: err, error: err });
@@ -52,10 +52,10 @@ productsRouter.post("/collection", async (req, res) => {
 productsRouter.get("/set/:id", async (req, res) => {
   try {
     const set = req.params?.id;
-    const pageSize = req.query?.pageSize || 10;
+    const pageSize = req.query?.pageSize || 4;
     const pageNum = req.query?.pageNum || 1;
-    const results = await productsController.getAllProductsBySet(set, { pageSize, pageNum });
-    res.status(200).json(results);
+    const { productList, count } = await productsController.getAllProductsBySet(set, { pageSize, pageNum });
+    res.status(200).json({ productList, count, pageNum, pageSize });
   }
   catch (err) {
     res.status(422).json({ message: err, error: err });
