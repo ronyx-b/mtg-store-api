@@ -1,8 +1,6 @@
 const express = require('express'); // create express server
 const app = express();
 const cors = require('cors'); // load cors package
-const dotenv = require('dotenv'); // ENV variables
-dotenv.config();
 
 const userRouter = require("./routers/user-router");
 const productsRouter = require('./routers/products-router');
