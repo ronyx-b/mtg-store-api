@@ -144,7 +144,7 @@ The API follows a layered architecture separating HTTP routing from application/
                      │                   │
                      ▼                   ▼
               ┌─────────────┐     ┌─────────────┐
-              │   MongoDB    │     │  Cloudinary │
+              │   MongoDB   │     │  Cloudinary │
               │  + Mongoose │     │    Images   │
               └─────────────┘     └─────────────┘
 ```
